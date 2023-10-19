@@ -37,16 +37,19 @@ def getFoxNews():
 
     pageSoup = soup(pageHtml, "html.parser")
     articles = pageSoup.find("div", {"class": "page"})
+    articles = articles.find("div", {"class": "thumbs-2-7"})
     articles = articles.findAll("div", {"class": "info"})
 
     titles = list()
     i = 1
     for x in articles:
-        title = x.find("h3").text
+        title = x.find("a").text
         titles.append(title)
-        #print(i, title, "\n")
+        #link = x.find("a")["href"]
+        #titles[title] = link
         i = i + 1
     return titles
+
 def getWeather(city):
     owm = OWM(openWeatherToken)
     weatherManager = owm.weather_manager()
@@ -56,6 +59,8 @@ def getWeather(city):
 temperature - {weather.temperature('celsius')["temp"]}C
 """
     return weatherInfo
+
+
 def printData():
     news = getCnnNews()
     for t in news:
@@ -81,16 +86,14 @@ def sendWeather(message):
 
 @bot.message_handler(commands=["news"])
 def sendNews(message):
-    newsCnn = getCnnNews()
-    #newsFox = getFoxNews()
+    newsFox = getFoxNews()
+    text = ""
+    for new in newsFox:
+        text += f"{new}\n"
     bot.send_message(message.chat.id, f"""
-CNN:
-    {newsCnn[0]}
-    {newsCnn[1]}
-    {newsCnn[2]}
-    {newsCnn[3]}
-    {newsCnn[4]}
-"""
+FOX:
+    {text}
+""", parse_mode = "html"
 
                      )
 
